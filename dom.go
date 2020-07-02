@@ -4,6 +4,7 @@ package dom
 import (
 	"encoding/xml"
 	"errors"
+	"regexp"
 	"strings"
 )
 
@@ -19,8 +20,12 @@ type (
 	}
 )
 
-// ErrBreak ...
-var ErrBreak = errors.New("Break")
+var (
+	// ErrBreak ...
+	ErrBreak = errors.New("Break")
+
+	regSelfClosing = regexp.MustCompile(`></[^>]+>`)
+)
 
 // MarshalXML implements xml.Marshaler interface
 func (elem *Element) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
@@ -52,7 +57,7 @@ func (elem *Element) MarshalXML(e *xml.Encoder, start xml.StartElement) (err err
 // UnmarshalXML implements xml.Unmarshaler interface
 func (elem *Element) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
 	copy := start.Copy()
-	elem.Name = copy.Name
+	elem.Name.Local = copy.Name.Local
 	elem.Attr = copy.Attr
 	var next xml.Token
 
@@ -125,4 +130,51 @@ func (elem *Element) ForEachChildNamed(name string, fn func(child *Element) erro
 		func(child *Element) error {
 			return fn(child)
 		})
+}
+
+// Marshal returns the XML encoding of elem.
+func (elem *Element) Marshal(escQuot, escApos bool) (res string, err error) {
+	dat, err := xml.Marshal(elem)
+	if err != nil {
+		return "", err
+	}
+
+	res = string(dat)
+
+	if escQuot == false {
+		res = strings.ReplaceAll(res, "&#34;", `"`)
+	}
+
+	if escApos == false {
+		res = strings.ReplaceAll(res, "&#39;", "'")
+	}
+
+	return
+}
+
+// MarshalIndent works like Marshal, but XML element begins on a new indented line that starts
+// with prefix and is followed by one or more copies of indent according to the nesting depth.
+func (elem *Element) MarshalIndent(prefix, indent string, withDecl, escQuot, escApos bool) (res string, err error) {
+	dat, err := xml.MarshalIndent(elem, prefix, indent)
+	if err != nil {
+		return "", err
+	}
+
+	res = string(dat)
+
+	if escQuot == false {
+		res = strings.ReplaceAll(res, "&#34;", `"`)
+	}
+
+	if escApos == false {
+		res = strings.ReplaceAll(res, "&#39;", "'")
+	}
+
+	res = regSelfClosing.ReplaceAllString(res, " />")
+
+	if withDecl == true {
+		res = `<?xml version="1.0" encoding="utf-8"?>` + "\n" + res
+	}
+
+	return
 }

@@ -87,3 +87,47 @@ func TestError(t *testing.T) {
 		t.Fatal("Unmarshal error is expected.")
 	}
 }
+
+func TestMarshal(t *testing.T) {
+	input := `<PropertyGroup Condition="'$(CompileConfig)' == 'DEBUG'">
+  <Optimization>false</Optimization>
+  <Obfuscate>false</Obfuscate>
+  <OutputPath>$(OutputPath)\debug</OutputPath>
+</PropertyGroup>`
+	elem := &Element{}
+	err := xml.Unmarshal([]byte(input), elem)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	m0, err := elem.MarshalIndent("", "  ", true, false, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	elem = &Element{}
+	err = xml.Unmarshal([]byte(m0), elem)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	m1, err := elem.Marshal(false, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	elem = &Element{}
+	err = xml.Unmarshal([]byte(m1), elem)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	m2, err := elem.MarshalIndent("", "  ", false, false, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if m2 != input {
+		t.Fatal("m1 != input")
+	}
+}
