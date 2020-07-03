@@ -37,4 +37,18 @@ func TestDom(t *testing.T) {
 }
 ```
 
-In addition, `Element.Marshal` and `Element.MarshalIndent` provide a few more useful options.
+`Element.Marshal` and `Element.MarshalIndent` provide a few more useful options to write XML.
+
+The XML document is loaded into `Element` object which is as simple as follows:
+
+```
+Element struct {
+    Name     xml.Name
+    Attr     []xml.Attr
+    Children []Node
+}
+```
+
+where `Node` is either `Element`, `xml.CharData`, `xml.Comment`, or `xml.Directive`.
+
+`Element.ForEachChild*` family lets you traverse child elements.
