@@ -49,6 +49,6 @@ Element struct {
 }
 ```
 
-where `Node` is either `Element`, `xml.CharData`, `xml.Comment`, or `xml.Directive`.
+where `Node` is either `*Element` (pointer), `xml.CharData`, `xml.Comment`, or `xml.Directive`.
 
 `Element.ForEachChild*` family lets you traverse child elements.
