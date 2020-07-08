@@ -154,3 +154,30 @@ func TestIsEmpty(t *testing.T) {
 		t.Fatal("elem.IsEmpty() == true")
 	}
 }
+
+func TestText(t *testing.T) {
+	elem := &Element{}
+	err := xml.Unmarshal([]byte(`<a><s1/><s2></s2><s3>text</s3></a>`), elem)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	text, res := elem.Text()
+	if len(text) > 0 || res == true {
+		t.Fatal(`len(text) > 0 || res == true`)
+	}
+
+	elem.ForEachChild(func(child *Element) error {
+		switch child.Name.Local {
+		case "s1", "s2":
+			if text, res = child.Text(); len(text) > 0 || res == true {
+				t.Fatal(`len(text) > 0 || res == true`)
+			}
+		case "s3":
+			if text, res = child.Text(); res == false || text != "text" {
+				t.Fatal(`res == false || text != "text"`)
+			}
+		}
+		return nil
+	})
+}

@@ -93,6 +93,17 @@ func (elem *Element) IsEmpty() bool {
 	return elem == nil || len(elem.Attr) == 0 && len(elem.Children) == 0
 }
 
+// Text returns the plain text if the element has only one child whose type is xml.CharData.
+// Otherwise it returns an empty string and false.
+func (elem *Element) Text() (string, bool) {
+	if elem != nil && len(elem.Children) == 1 {
+		if charData, ok := elem.Children[0].(xml.CharData); ok == true {
+			return string(charData), true
+		}
+	}
+	return "", false
+}
+
 // ForEachChild invokes fn on each child element.
 //
 // The iteration can be broken when fn returns ErrBreak.
