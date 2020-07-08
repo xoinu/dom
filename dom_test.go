@@ -180,4 +180,26 @@ func TestText(t *testing.T) {
 		}
 		return nil
 	})
+
+	// It replaces children with a text
+	elem.SetText("text")
+	text, res = elem.Text()
+	if res == false || text != "text" {
+		t.Fatal(`res == false || text != "text"`)
+	}
+
+	// It clears children if text is empty
+	elem.SetText("")
+	text, res = elem.Text()
+	if len(text) > 0 || res == true {
+		t.Fatal(`len(text) > 0 || res == true`)
+	}
+
+	// Nothing happens if elem is nil
+	elem = nil
+	elem.SetText("text")
+	text, res = elem.Text()
+	if len(text) > 0 || res == true {
+		t.Fatal(`len(text) > 0 || res == true`)
+	}
 }

@@ -104,6 +104,19 @@ func (elem *Element) Text() (string, bool) {
 	return "", false
 }
 
+// SetText clears all the existing children and append an xml.CharData node.
+func (elem *Element) SetText(s string) {
+	if elem == nil {
+		return
+	}
+
+	if len(s) == 0 {
+		elem.Children = nil
+	} else {
+		elem.Children = []Node{xml.CharData(s)}
+	}
+}
+
 // ForEachChild invokes fn on each child element.
 //
 // The iteration can be broken when fn returns ErrBreak.
