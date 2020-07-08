@@ -131,3 +131,26 @@ func TestMarshal(t *testing.T) {
 		t.Fatal("m1 != input")
 	}
 }
+
+func TestIsEmpty(t *testing.T) {
+	elem := &Element{}
+	if elem.IsEmpty() == false {
+		t.Fatal("elem.IsEmpty() == false")
+	}
+
+	elem.Children = append(elem.Children, &Element{})
+	if elem.IsEmpty() == true {
+		t.Fatal("elem.IsEmpty() == true")
+	}
+
+	elem = nil
+	if elem.IsEmpty() == false {
+		t.Fatal("elem.IsEmpty() == false")
+	}
+
+	elem = &Element{}
+	elem.Attr = append(elem.Attr, xml.Attr{})
+	if elem.IsEmpty() == true {
+		t.Fatal("elem.IsEmpty() == true")
+	}
+}

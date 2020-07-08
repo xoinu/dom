@@ -88,6 +88,11 @@ loop:
 	return
 }
 
+// IsEmpty returns true if elem has neigher Attr nor Children
+func (elem *Element) IsEmpty() bool {
+	return elem == nil || len(elem.Attr) == 0 && len(elem.Children) == 0
+}
+
 // ForEachChild invokes fn on each child element.
 //
 // The iteration can be broken when fn returns ErrBreak.
