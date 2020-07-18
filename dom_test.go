@@ -2,6 +2,7 @@ package dom
 
 import (
 	"encoding/xml"
+	"log"
 	"strings"
 	"testing"
 )
@@ -94,12 +95,8 @@ func TestMarshal(t *testing.T) {
   <Obfuscate>false</Obfuscate>
   <OutputPath>$(OutputPath)\debug</OutputPath>
 </PropertyGroup>`
-	elem := &Element{}
-	err := xml.Unmarshal([]byte(input), elem)
-	if err != nil {
-		t.Fatal(err)
-	}
 
+	elem := Must(input)
 	m0, err := elem.MarshalIndent("", "  ", true, false, false)
 	if err != nil {
 		t.Fatal(err)
@@ -130,6 +127,11 @@ func TestMarshal(t *testing.T) {
 	if m2 != input {
 		t.Fatal("m1 != input")
 	}
+
+	elem = nil
+	if res, _ := elem.MarshalIndent("", "  ", false, false, false); len(res) != 0 {
+		t.Fatal("elem.MarshalIndent() must return empty string if elem == nil")
+	}
 }
 
 func TestIsEmpty(t *testing.T) {
@@ -156,12 +158,7 @@ func TestIsEmpty(t *testing.T) {
 }
 
 func TestText(t *testing.T) {
-	elem := &Element{}
-	err := xml.Unmarshal([]byte(`<a><s1/><s2></s2><s3>text</s3></a>`), elem)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	elem := Must(`<a><s1/><s2></s2><s3>text</s3></a>`)
 	text, res := elem.Text()
 	if len(text) > 0 || res == true {
 		t.Fatal(`len(text) > 0 || res == true`)
@@ -201,5 +198,26 @@ func TestText(t *testing.T) {
 	text, res = elem.Text()
 	if len(text) > 0 || res == true {
 		t.Fatal(`len(text) > 0 || res == true`)
+	}
+}
+
+func TestFindAttr(t *testing.T) {
+	elem := Must(`<a attr1="test1" attr2="test2" attr3="test3"/>`)
+	attr := elem.FindAttr("attr1")
+	if attr == nil {
+		t.Fatal(`attr == nil`)
+	}
+	if attr.Name.Local != "attr1" || attr.Value != "test1" {
+		t.Fatal(`attr.Name.Local != "attr1" || attr.Value != "test1"`)
+	}
+	if elem.HasAttr("attr2") == false {
+		t.Fatal(`elem.HasAttr("attr2") == false`)
+	}
+	if elem.HasAttr("attr4") == true {
+		t.Fatal(`elem.HasAttr("attr4") == true`)
+	}
+	elem = nil
+	if elem.FindAttr("test1") != nil {
+		log.Fatal(`elem.FindAttr("test1") != nil`)
 	}
 }

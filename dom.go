@@ -4,6 +4,7 @@ package dom
 import (
 	"encoding/xml"
 	"errors"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -88,9 +89,41 @@ loop:
 	return
 }
 
+// Must is a helper that wraps xml.Unmarshal() and patics if the error is non-nil.
+// It is intended for use in variable initializations.
+func Must(s string) *Element {
+	elem := &Element{}
+	if err := xml.Unmarshal([]byte(s), elem); err != nil {
+		log.Fatalf(`Failed to initialize dom.Element with "%s"`, s)
+	}
+	return elem
+}
+
 // IsEmpty returns true if elem has neigher Attr nor Children
 func (elem *Element) IsEmpty() bool {
 	return elem == nil || len(elem.Attr) == 0 && len(elem.Children) == 0
+}
+
+// HasAttr is a helper that is equivalent to elem.FindAttr(name) != nil. Do not overuse since it does linear search.
+func (elem *Element) HasAttr(name string) bool {
+	return elem.FindAttr(name) != nil
+}
+
+// FindAttr finds attributes whose Name is name with linear search.
+func (elem *Element) FindAttr(name string) *xml.Attr {
+	if elem == nil {
+		return nil
+	}
+
+	n := len(elem.Attr)
+	for i := 0; i < n; i++ {
+		attr := &elem.Attr[i]
+		if attr.Name.Local == name {
+			return attr
+		}
+	}
+
+	return nil
 }
 
 // Text returns the plain text if the element has only one child whose type is xml.CharData.
