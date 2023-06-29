@@ -221,3 +221,17 @@ func TestFindAttr(t *testing.T) {
 		log.Fatal(`elem.FindAttr("test1") != nil`)
 	}
 }
+
+func TestTextRecurse(t *testing.T) {
+	input := `<PropertyGroup Condition="'$(CompileConfig)' == 'DEBUG'">
+	ThisIs
+  <Optimization>Test</Optimization>
+  <Obfuscate>De</Obfuscate>
+  <OutputPath>Gonsu</OutputPath>Gonsu
+</PropertyGroup>`
+	elem := Must(input)
+	res := elem.TextRecurse()
+	if res != "ThisIsTestDeGonsuGonsu" {
+		t.Fatal(res)
+	}
+}

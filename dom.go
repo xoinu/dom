@@ -67,7 +67,7 @@ loop:
 		switch next, err = d.Token(); token := next.(type) {
 		case xml.CharData:
 			// Ignore whitespaces
-			if text := strings.Trim(string(token), " \r\n\t"); len(text) > 0 {
+			if text := strings.TrimSpace(string(token)); len(text) > 0 {
 				elem.Children = append(elem.Children, xml.CharData(text))
 			}
 		case xml.Comment, xml.Directive:
@@ -135,6 +135,24 @@ func (elem *Element) Text() (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// TextRecurse recursively traverses the DOM structure (children of the current Element),
+// and accumulates the text content found within xml.CharData instances.
+//
+// Returns a string which contains the accumulated text content from the Element
+// and all of its descendants in the tree structure.
+func (elem *Element) TextRecurse() (res string) {
+	for _, child := range elem.Children {
+		switch elem := child.(type) {
+		case xml.CharData:
+			res += string(elem)
+		case *Element:
+			res += elem.TextRecurse()
+		}
+	}
+
+	return
 }
 
 // SetText clears all the existing children and append an xml.CharData node.
