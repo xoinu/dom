@@ -68,7 +68,7 @@ loop:
 		case xml.CharData:
 			// Ignore whitespaces
 			if text := strings.Trim(string(token), " \r\n\t"); len(text) > 0 {
-				elem.Children = append(elem.Children, token.Copy())
+				elem.Children = append(elem.Children, text)
 			}
 		case xml.Comment, xml.Directive:
 			elem.Children = append(elem.Children, xml.CopyToken(token))
